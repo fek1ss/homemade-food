@@ -1,0 +1,52 @@
+"use client"
+
+import { useProducts } from "@/context/products-context"
+import { useOrder } from "@/context/order-context"
+import { ProductCard } from "@/components/product-card"
+import { OrderStatusBanner } from "@/components/order-status-banner"
+
+export default function HomePage() {
+  const { products, loading } = useProducts()
+  const { orderSettings } = useOrder()
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Order Status Banner */}
+      <div className="mb-8">
+        <OrderStatusBanner />
+      </div>
+
+      {/* Hero Section */}
+      <section className="mb-12 text-center">
+        <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
+          Домашняя еда с любовью
+        </h1>
+        <p className="mx-auto mt-4 max-w-2xl text-pretty text-lg text-muted-foreground">
+          Приготовлено по семейным рецептам из свежих продуктов. Заказывайте через WhatsApp и получайте вкусную еду прямо к вашему столу.
+        </p>
+      </section>
+
+      {/* Products Grid */}
+      <section>
+        <h2 className="mb-6 text-2xl font-semibold text-foreground">
+          Наше меню
+        </h2>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <p className="text-muted-foreground">Загрузка меню...</p>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="rounded-lg border border-border bg-muted/50 p-8 text-center">
+            <p className="text-muted-foreground">Приносим извинения, меню временно недоступно</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {products.map((product, index) => (
+              <ProductCard key={product.id} product={product} priority={index < 4} />
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  )
+}
