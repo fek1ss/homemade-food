@@ -1,21 +1,22 @@
 "use client"
 
 import { CheckCircle, XCircle } from "lucide-react"
-import { useOrder } from "@/context/order-context"
 
-export function OrderStatusBanner() {
-  const { orderSettings } = useOrder()
+interface OrderStatusBannerProps {
+  isOpen?: boolean
+}
 
+export function OrderStatusBanner({ isOpen = true }: OrderStatusBannerProps) {
   return (
     <div
       className={`rounded-lg p-4 ${
-        orderSettings.isOpen
+        isOpen
           ? "bg-accent/50 text-accent-foreground"
           : "bg-destructive/10 text-destructive"
       }`}
     >
       <div className="flex items-center justify-center gap-2">
-        {orderSettings.isOpen ? (
+        {isOpen ? (
           <>
             <CheckCircle className="h-5 w-5" />
             <span className="font-medium">Принимаем заказы</span>

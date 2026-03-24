@@ -1,12 +1,12 @@
 "use client"
 
+import { Product } from "@/types" // тип продукта из вашей БД
 import Image from "next/image"
-import { Product } from "@/types"
-import { useProducts } from "@/context/products-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Check, X, Trash2 } from "lucide-react"
-import { supabase } from "@/lib/supabase"
+import { useActionState } from "react"
+import { toggleProductAvailability, deleteProduct } from "@/actions/products"
 import { useState } from "react"
 
 interface AdminProductCardProps {
@@ -14,35 +14,22 @@ interface AdminProductCardProps {
 }
 
 export function AdminProductCard({ product }: AdminProductCardProps) {
-  const { updateAvailability } = useProducts()
+  const [stateToggle, toggleAction] = useActionState(toggleProductAvailability, { error: "" })
+  const [stateDelete, deleteAction] = useActionState(deleteProduct, { error: "" })
   const [deleting, setDeleting] = useState(false)
 
-  const handleToggle = () => {
-    updateAvailability(product.id, !product.isAvailable)
+  const handleToggle = async () => {
+    const formData = new FormData()
+    formData.append("id", String(product.id))
+    formData.append("available", String(product.available))
+    await toggleAction(formData)
   }
 
   const handleDelete = async () => {
-    if (!confirm(`Вы уверены? Удалить "${product.name}"?`)) return
-
-    setDeleting(true)
-    try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', Number(product.id))
-
-      if (error) {
-        alert(`Ошибка: ${error.message}`)
-      } else {
-        alert('Продукт удален')
-        window.location.reload()
-      }
-    } catch (err) {
-      alert('Ошибка при удалении')
-      console.error(err)
-    } finally {
-      setDeleting(false)
-    }
+    const formData = new FormData()
+    formData.append("id", String(product.id))
+    formData.append("available", String(product.available))
+    await toggleAction(formData)
   }
 
   return (
@@ -53,11 +40,8 @@ export function AdminProductCard({ product }: AdminProductCardProps) {
           alt={product.name}
           fill
           className="object-cover"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
-        {!product.isAvailable && (
-          <div className="absolute inset-0 bg-foreground/40" />
-        )}
+        {!product.available && <div className="absolute inset-0 bg-foreground/40" />}
       </div>
 
       <CardContent className="p-4">
@@ -70,10 +54,10 @@ export function AdminProductCard({ product }: AdminProductCardProps) {
       <CardFooter className="flex gap-2 p-4 pt-0">
         <Button
           onClick={handleToggle}
-          variant={product.isAvailable ? "default" : "outline"}
+          variant={product.available ? "default" : "outline"}
           className="flex-1"
         >
-          {product.isAvailable ? (
+          {product.available ? (
             <>
               <Check className="mr-2 h-4 w-4" />
               В наличии
@@ -81,7 +65,7 @@ export function AdminProductCard({ product }: AdminProductCardProps) {
           ) : (
             <>
               <X className="mr-2 h-4 w-4" />
-              Не в наличии
+              Недоступен
             </>
           )}
         </Button>

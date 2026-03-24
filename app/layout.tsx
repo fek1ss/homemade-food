@@ -1,10 +1,6 @@
 import type { Metadata } from 'next'
 import { Montserrat } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { CartProvider } from '@/context/cart-context'
-import { ProductsProvider } from '@/context/products-context'
-import { OrderProvider } from '@/context/order-context'
-import { AuthProvider } from '@/context/auth-context'
 import { Header } from '@/components/header'
 import './globals.css'
 
@@ -41,19 +37,10 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${montserrat.variable} font-sans antialiased`}>
-        {/* AuthProvider оборачивает весь проект, чтобы useAuth() работал в любом компоненте */}
-        <AuthProvider>
-          <ProductsProvider>
-            <OrderProvider>
-              <CartProvider>
-                <Header />
-                <main className="min-h-screen">
-                  {children}
-                </main>
-              </CartProvider>
-            </OrderProvider>
-          </ProductsProvider>
-        </AuthProvider>
+        <Header />
+        <main className="min-h-screen">
+          {children}
+        </main>
         <Analytics />
       </body>
     </html>
