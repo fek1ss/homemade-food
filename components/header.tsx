@@ -1,14 +1,26 @@
-import Link from "next/link"
-import { ShoppingCart, Settings, User } from "lucide-react"
-import { createClient } from "@/lib/server"
-import { signOut } from "@/actions/auth"
+'use server'
 
-export async function Header() {
+import { createClient } from "@/lib/server";
+import Link from "next/link";
+import { ShoppingCart, Settings } from "lucide-react";
+import { signOut } from "@/actions/auth";
+
+export default async function Header() {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const role = user?.user_metadata?.role
+  let role = null
+
+  if (user) {
+    const { data: userData } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single()
+
+    role = userData?.role
+  }
 
   const isAdmin = role === "admin"
   const isCashier = role === "cashier"
@@ -35,11 +47,6 @@ export async function Header() {
                 </Link>
               )}
 
-              <Link href="/cashier" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Касса
-              </Link>
-
               <form action={signOut}>
                 <button className="px-3 py-1 bg-red-600 text-white rounded-md">
                   Выйти
@@ -56,5 +63,5 @@ export async function Header() {
         </nav>
       </div>
     </header>
-  )
+  );
 }

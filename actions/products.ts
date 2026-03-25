@@ -25,33 +25,39 @@ export async function addProduct(prevData: any, formData: FormData) {
     return { error: "Изображение обязательно" }
   }
 
-  // 📦 создаём уникальное имя файла
-  const fileName = `${Date.now()}-${file.name}`
+  const fileName = `${Date.now()}-${file.name.replace(/\s/g, "_")}`
+  const filePath = `products/${fileName}`
 
-  // 🚀 загружаем в storage
+  // 🚀 upload
   const { error: uploadError } = await supabase.storage
-    .from("product-images") // имя bucket
-    .upload(fileName, file)
+    .from("product-images")
+    .upload(filePath, file, {
+      contentType: file.type,
+    })
 
   if (uploadError) {
+    console.log("UPLOAD ERROR:", uploadError)
     return { error: uploadError.message }
   }
 
-  // 🔗 получаем публичный URL
-  const { data: publicUrl } = supabase.storage
-    .from("product-images") 
-    .getPublicUrl(fileName)
+  // 🔗 url
+  const { data } = supabase.storage
+    .from("product-images")
+    .getPublicUrl(filePath)
 
-  // 💾 сохраняем в БД
-  const { error: insertError } = await supabase.from("products").insert({
-    name,
-    description,
-    price,
-    image: publicUrl.publicUrl,
-    available: true,
-  })
+  // 💾 insert
+  const { error: insertError } = await supabase
+    .from("products")
+    .insert({
+      name,
+      description,
+      price,
+      image: data.publicUrl,
+      available: true,
+    })
 
   if (insertError) {
+    console.log("INSERT ERROR:", insertError)
     return { error: insertError.message }
   }
 

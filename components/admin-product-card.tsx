@@ -16,21 +16,28 @@ interface AdminProductCardProps {
 export function AdminProductCard({ product }: AdminProductCardProps) {
   const [stateToggle, toggleAction] = useActionState(toggleProductAvailability, { error: "" })
   const [stateDelete, deleteAction] = useActionState(deleteProduct, { error: "" })
-  const [deleting, setDeleting] = useState(false)
+  // const [deleting, setDeleting] = useState(false)
 
-  const handleToggle = async () => {
-    const formData = new FormData()
-    formData.append("id", String(product.id))
-    formData.append("available", String(product.available))
-    await toggleAction(formData)
-  }
+  // const handleToggle = async () => {
+  //   const formData = new FormData()
+  //   formData.append("id", String(product.id))
+  //   formData.append("available", String(product.available))
 
-  const handleDelete = async () => {
-    const formData = new FormData()
-    formData.append("id", String(product.id))
-    formData.append("available", String(product.available))
-    await toggleAction(formData)
-  }
+  //   await toggleAction(formData)
+  // }
+
+  // const handleDelete = async () => {
+  //   if (!confirm(`Удалить "${product.name}"?`)) return
+
+  //   setDeleting(true)
+
+  //   const formData = new FormData()
+  //   formData.append("id", String(product.id))
+
+  //   await deleteAction(formData)
+
+  //   setDeleting(false)
+  // }
 
   return (
     <Card className="overflow-hidden">
@@ -52,7 +59,7 @@ export function AdminProductCard({ product }: AdminProductCardProps) {
       </CardContent>
 
       <CardFooter className="flex gap-2 p-4 pt-0">
-        <Button
+        {/* <Button
           onClick={handleToggle}
           variant={product.available ? "default" : "outline"}
           className="flex-1"
@@ -68,8 +75,34 @@ export function AdminProductCard({ product }: AdminProductCardProps) {
               Недоступен
             </>
           )}
-        </Button>
-        <Button
+        </Button> */}
+        <form action={toggleAction}>
+          <input type="hidden" name="id" value={product.id} />
+          <input type="hidden" name="available" value={String(product.available)} />
+
+          <Button
+            type="submit"
+            variant={product.available ? "default" : "outline"}
+            className="flex-1"
+          >
+            {product.available ? "В наличии" : "Недоступен"}
+          </Button>
+        </form>
+        <form
+          action={deleteAction}
+          onSubmit={(e) => {
+            if (!confirm(`Удалить "${product.name}"?`)) {
+              e.preventDefault()
+            }
+          }}
+        >
+          <input type="hidden" name="id" value={product.id} />
+
+          <Button type="submit" variant="destructive" size="icon">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </form>
+        {/* <Button
           onClick={handleDelete}
           disabled={deleting}
           variant="destructive"
@@ -77,7 +110,7 @@ export function AdminProductCard({ product }: AdminProductCardProps) {
           title="Удалить"
         >
           <Trash2 className="h-4 w-4" />
-        </Button>
+        </Button> */}
       </CardFooter>
     </Card>
   )
