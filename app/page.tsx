@@ -1,19 +1,33 @@
-
 import { ProductCard } from "@/components/product-card"
 import { OrderStatusBanner } from "@/components/order-status-banner"
 import { createClient } from "@/lib/server"
 
 export default async function HomePage() {
   const supabase = await createClient()
-  
-    const { data: products, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false })
-  
-    if (error) {
-      return <div className="p-8">Ошибка загрузки: {error.message}</div>
-    }
+
+  // Получаем текущего пользователя
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    return (
+      <div className="p-8 text-center">
+        Пожалуйста, войдите, чтобы просматривать меню
+      </div>
+    )
+  }
+
+  // Загружаем продукты
+  const { data: products, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    return <div className="p-8">Ошибка загрузки: {error.message}</div>
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -37,14 +51,18 @@ export default async function HomePage() {
         <h2 className="mb-6 text-2xl font-semibold text-foreground">
           Наше меню
         </h2>
-        {products.length === 0 ? (
+
+        {(!products || products.length === 0) ? (
           <div className="rounded-lg border border-border bg-muted/50 p-8 text-center">
             <p className="text-muted-foreground">Приносим извинения, меню временно недоступно</p>
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product, index) => (
-              <ProductCard key={product.id} product={product} priority={index < 4} />
+              <ProductCard
+                key={product.id}
+                product={product}
+              />
             ))}
           </div>
         )}

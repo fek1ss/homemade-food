@@ -23,9 +23,6 @@ export async function proxy(request: NextRequest) {
   const isAdminPage = request.nextUrl.pathname.startsWith("/admin")
   const isCashierPage = request.nextUrl.pathname.startsWith("/cashier")
 
-  if (isAdminPage && role !== "admin") {
-    return NextResponse.redirect(new URL("/", request.url))
-  }
 
   // ❌ не кассир/админ
   if (isCashierPage && role !== "cashier" && role !== "admin") {

@@ -3,6 +3,23 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/server"
 
+// Получение всех продуктов
+export async function getProducts() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data || []
+}
+
+// Добавление нового продукта
 export async function addProduct(prevData: any, formData: FormData) {
   const supabase = await createClient()
 
@@ -71,6 +88,26 @@ export async function deleteProduct(prevState: any, formData: FormData) {
 
   const id = Number(formData.get("id"))
 
+  // 1. Получаем продукт
+  const { data: product } = await supabase
+    .from("products")
+    .select("image")
+    .eq("id", id)
+    .single()
+
+  // 2. Удаляем картинку из storage
+  if (product?.image) {
+    // ⚠️ ВАЖНО: тут должен быть ТОЛЬКО путь, не полный URL
+    const filePath = product.image.split("/storage/v1/object/public/")[1]
+
+    if (filePath) {
+      await supabase.storage
+        .from("product-images") // имя bucket
+        .remove([filePath])
+    }
+  }
+
+  // 3. Удаляем из БД
   const { error } = await supabase
     .from("products")
     .delete()

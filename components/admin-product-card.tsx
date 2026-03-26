@@ -16,28 +16,6 @@ interface AdminProductCardProps {
 export function AdminProductCard({ product }: AdminProductCardProps) {
   const [stateToggle, toggleAction] = useActionState(toggleProductAvailability, { error: "" })
   const [stateDelete, deleteAction] = useActionState(deleteProduct, { error: "" })
-  // const [deleting, setDeleting] = useState(false)
-
-  // const handleToggle = async () => {
-  //   const formData = new FormData()
-  //   formData.append("id", String(product.id))
-  //   formData.append("available", String(product.available))
-
-  //   await toggleAction(formData)
-  // }
-
-  // const handleDelete = async () => {
-  //   if (!confirm(`Удалить "${product.name}"?`)) return
-
-  //   setDeleting(true)
-
-  //   const formData = new FormData()
-  //   formData.append("id", String(product.id))
-
-  //   await deleteAction(formData)
-
-  //   setDeleting(false)
-  // }
 
   return (
     <Card className="overflow-hidden">
@@ -59,23 +37,6 @@ export function AdminProductCard({ product }: AdminProductCardProps) {
       </CardContent>
 
       <CardFooter className="flex gap-2 p-4 pt-0">
-        {/* <Button
-          onClick={handleToggle}
-          variant={product.available ? "default" : "outline"}
-          className="flex-1"
-        >
-          {product.available ? (
-            <>
-              <Check className="mr-2 h-4 w-4" />
-              В наличии
-            </>
-          ) : (
-            <>
-              <X className="mr-2 h-4 w-4" />
-              Недоступен
-            </>
-          )}
-        </Button> */}
         <form action={toggleAction}>
           <input type="hidden" name="id" value={product.id} />
           <input type="hidden" name="available" value={String(product.available)} />
@@ -102,15 +63,6 @@ export function AdminProductCard({ product }: AdminProductCardProps) {
             <Trash2 className="h-4 w-4" />
           </Button>
         </form>
-        {/* <Button
-          onClick={handleDelete}
-          disabled={deleting}
-          variant="destructive"
-          size="icon"
-          title="Удалить"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button> */}
       </CardFooter>
     </Card>
   )

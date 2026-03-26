@@ -1,12 +1,32 @@
-"use client"
+'use client'
 
+import { useState, useEffect } from "react"
+import { supabaseClient } from "@/lib/supabaseClient"
 import { CheckCircle, XCircle } from "lucide-react"
 
-interface OrderStatusBannerProps {
-  isOpen?: boolean
-}
+export function OrderStatusBanner() {
+  const [isOpen, setIsOpen] = useState<boolean | null>(null)
 
-export function OrderStatusBanner({ isOpen = true }: OrderStatusBannerProps) {
+  useEffect(() => {
+    async function fetchStatus() {
+      const { data, error } = await supabaseClient
+        .from("settings")
+        .select("accept_orders")
+        .single()
+
+      if (error) {
+        console.error("Ошибка при получении статуса:", error)
+        return
+      }
+
+      if (data) setIsOpen(data.accept_orders)
+    }
+
+    fetchStatus()
+  }, [])
+
+  if (isOpen === null) return null // пока данные не подгрузились
+
   return (
     <div
       className={`rounded-lg p-4 ${
