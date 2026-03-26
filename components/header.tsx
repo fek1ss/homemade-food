@@ -21,7 +21,7 @@ export default async function Header() {
             Корзина
           </Link>
 
-          {roleInfo.isAdmin && (
+          {(roleInfo.isAdmin || roleInfo.isCashier) && (
             <Link href="/admin" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Админ
