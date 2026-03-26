@@ -23,7 +23,7 @@ export default function LoginPage() {
           >
             Sign In
           </button>
-          {/* <button
+          <button
             onClick={() => setMode('signup')}
             className={`flex-1 pb-2 ${
               mode === 'signup'
@@ -32,15 +32,15 @@ export default function LoginPage() {
             }`}
           >
             Sign Up
-          </button> */}
+          </button>
         </div>
 
         <Activity mode={mode === 'signin' ? 'visible' : 'hidden'}>
           <LoginForm />
         </Activity>
-        {/* <Activity mode={mode !== 'signin' ? 'visible' : 'hidden'}>
+        <Activity mode={mode !== 'signin' ? 'visible' : 'hidden'}>
           <SignUpForm />
-        </Activity> */}
+        </Activity>
       </div>
     </div>
   );
