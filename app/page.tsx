@@ -1,33 +1,12 @@
+'use server'
+
 import { ProductCard } from "@/components/product-card"
 import { OrderStatusBanner } from "@/components/order-status-banner"
-import { createClient } from "@/lib/server"
+import { getProducts } from "@/actions/products"
 
 export default async function HomePage() {
-  const supabase = await createClient()
-
-  // Получаем текущего пользователя
-  const {
-    data: { user },
-    error: userError
-  } = await supabase.auth.getUser()
-
-  if (userError || !user) {
-    return (
-      <div className="p-8 text-center">
-        Пожалуйста, войдите, чтобы просматривать меню
-      </div>
-    )
-  }
-
-  // Загружаем продукты
-  const { data: products, error } = await supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false })
-
-  if (error) {
-    return <div className="p-8">Ошибка загрузки: {error.message}</div>
-  }
+  // Загружаем продукты через actions
+  const products = await getProducts()
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -58,7 +37,7 @@ export default async function HomePage() {
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product, index) => (
+            {products.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}

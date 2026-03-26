@@ -30,8 +30,14 @@ export const addToCart = (item: CartItem) => {
 export const removeFromCart = (id: number) => {
   const cart = getCart().filter((i) => i.id !== id)
   localStorage.setItem(CART_KEY, JSON.stringify(cart))
+
+  // 🔥 уведомляем
+  window.dispatchEvent(new CustomEvent("cart-update", { detail: cart }))
 }
 
 export const clearCart = () => {
   localStorage.removeItem(CART_KEY)
+
+  // 🔥 уведомляем
+  window.dispatchEvent(new CustomEvent("cart-update", { detail: [] }))
 }

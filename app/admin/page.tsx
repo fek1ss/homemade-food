@@ -8,12 +8,15 @@ import { LogoutButton } from "@/components/logout-button"
 import { AdminDeliverySlots } from "@/components/admin-delivery-slots"
 import { AcceptOrdersToggle } from "@/components/toggle-order"
 import { ProductStats } from "@/components/product-stats"
-
+import { getSlots } from "@/actions/slots"
 import { getProducts } from "@/actions/products"
 import { getUserRole } from "@/actions/getUserRole"
+import { getAcceptOrders } from "@/actions/settings"
 
 export default async function AdminPage() {
   const products = await getProducts()
+  const acceptOrders = await getAcceptOrders()
+  const slots = await getSlots()
   const { isAdmin, isCashier } = await getUserRole()
 
   return (
@@ -41,7 +44,7 @@ export default async function AdminPage() {
           <CardTitle>Приём заказов</CardTitle>
         </CardHeader>
         <CardContent>
-          <AcceptOrdersToggle />
+          <AcceptOrdersToggle initialValue={acceptOrders} />
         </CardContent>
       </Card>
 
@@ -52,7 +55,7 @@ export default async function AdminPage() {
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <AdminDeliverySlots />
+          <AdminDeliverySlots initialSlots={slots} />
         </CardContent>
       </Card>
 

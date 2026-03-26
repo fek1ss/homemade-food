@@ -19,6 +19,27 @@ export async function getProducts() {
   return data || []
 }
 
+// Получение продукта по ID
+export async function getProductById(id: number | string) {
+  const supabase = await createClient()
+  const numericId = Number(id) // 🔹
+
+  if (isNaN(numericId)) return null
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", numericId)
+    .single()
+
+  if (error) {
+    console.log("Ошибка при загрузке продукта:", JSON.stringify(error))
+    return null
+  }
+
+  return data
+}
+
 // Добавление нового продукта
 export async function addProduct(prevData: any, formData: FormData) {
   const supabase = await createClient()

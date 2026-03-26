@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Switch } from "@/components/ui/switch"
 import { AddSlotForm } from "./slot-form/addSlotForm"
-import { getSlots, toggleSlot } from "@/actions/slots"
+import { toggleSlot } from "@/actions/slots"
 
 interface Slot {
   id: number
@@ -11,20 +11,8 @@ interface Slot {
   available: boolean
 }
 
-export function AdminDeliverySlots() {
-  const [slots, setSlots] = useState<Slot[]>([])
-
-  const fetchSlots = async () => {
-    const result = await getSlots()
-
-    if (result.data) {
-      setSlots(result.data)
-    }
-  }
-
-  useEffect(() => {
-    fetchSlots()
-  }, [])
+export function AdminDeliverySlots({ initialSlots }: { initialSlots: Slot[] }) {
+  const [slots, setSlots] = useState<Slot[]>(initialSlots)
 
   const handleToggle = async (id: number, available: boolean) => {
     await toggleSlot(id, available)
@@ -38,7 +26,11 @@ export function AdminDeliverySlots() {
 
   return (
     <div className="flex flex-col gap-4">
-      <AddSlotForm onAdded={fetchSlots} />
+      <AddSlotForm
+        onAdded={(newSlot) =>
+          setSlots(prev => [...prev, newSlot]) // 🔥 добавляем новый слот сразу в UI
+        }
+      />
 
       <div className="flex flex-col gap-2">
         {slots.map(slot => (
@@ -51,7 +43,7 @@ export function AdminDeliverySlots() {
             />
             <span>{slot.time_range}</span>
           </div>
-        ))} 
+        ))}
       </div>
     </div>
   )

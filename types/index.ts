@@ -18,9 +18,8 @@ export interface User {
 
 export interface Slot {
   id: number
-  time: string
-  maxOrders: number
-  isActive: boolean
+  time_range: string
+  available: boolean
 }
 
 export interface Order {

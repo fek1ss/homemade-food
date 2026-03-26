@@ -10,21 +10,38 @@ export async function getSlots() {
     .select("*")
     .order("id", { ascending: true })
 
-  if (error) return { error: error.message }
+  if (error) {
+    console.error("Ошибка при загрузке слотов:", error)
+    return []
+  }
 
-  return { data }
+  return data || [] 
 }
 
-export async function addSlot(time_range: string) {
+// export async function addSlot(time_range: string) {
+//   const supabase = await createClient()
+
+//   const { error } = await supabase
+//     .from("delivery_slots")
+//     .insert({ time_range, available: true })
+
+//   if (error) return { error: error.message }
+
+//   return { success: true }
+// }
+
+export async function addSlot(timeRange: string) {
   const supabase = await createClient()
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("delivery_slots")
-    .insert({ time_range, available: true })
+    .insert({ time_range: timeRange, available: true })
+    .select()
+    .single()
 
   if (error) return { error: error.message }
 
-  return { success: true }
+  return { data } // 🔥 возвращаем новый слот
 }
 
 export async function toggleSlot(id: number, available: boolean) {
