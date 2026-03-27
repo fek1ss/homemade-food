@@ -4,7 +4,6 @@ import { ShoppingCart } from "lucide-react"
 import { useEffect, useState } from "react"
 import { getCart } from "@/actions/cart"
 
-// проверка ветки
 export function CartCounter() {
   const [count, setCount] = useState(0)
 
