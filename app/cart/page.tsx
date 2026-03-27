@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Trash2, ArrowLeft, ShoppingBag } from "lucide-react"
@@ -11,30 +11,13 @@ import { getCart, removeFromCart, clearCart } from "@/actions/cart"
 import { WhatsAppButton } from "@/components/whatsapp-button"
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<any[]>([])
+  const [cartItems, setCartItems] = useState(() => getCart())
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchCart()
-  }, [])
-
-  const fetchCart = () => {
-    try {
-      setLoading(true)
-      const data = getCart()
-      setCartItems(data || [])
-    } catch (e) {
-      setError("Ошибка загрузки корзины")
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleRemove = (productId: number) => {
     try {
       removeFromCart(productId)
-      fetchCart()
+      setCartItems(getCart())
     } catch {
       setError("Ошибка удаления товара")
     }
@@ -43,7 +26,7 @@ export default function CartPage() {
   const handleClearCart = () => {
     try {
       clearCart()
-      fetchCart()
+      setCartItems([])
     } catch {
       setError("Ошибка очистки корзины")
     }
@@ -61,16 +44,16 @@ export default function CartPage() {
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   )
-
-  if (loading) return <p>Загрузка корзины...</p>
 
   if (cartItems.length === 0)
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground" />
-        <h1 className="mt-4 text-2xl font-bold text-foreground">Корзина пуста</h1>
+        <h1 className="mt-4 text-2xl font-bold text-foreground">
+          Корзина пуста
+        </h1>
         <p className="mt-2 text-muted-foreground">Добавьте блюда в корзину</p>
         <Link href="/">
           <Button className="mt-6">
@@ -91,9 +74,7 @@ export default function CartPage() {
         Продолжить покупки
       </Link>
 
-      <h1 className="mb-8 text-3xl font-bold text-foreground">
-        Ваша корзина
-      </h1>
+      <h1 className="mb-8 text-3xl font-bold text-foreground">Ваша корзина</h1>
 
       {error && (
         <Alert variant="destructive" className="mb-4">
@@ -148,11 +129,7 @@ export default function CartPage() {
             ))}
           </div>
 
-          <Button
-            variant="outline"
-            className="mt-4"
-            onClick={handleClearCart}
-          >
+          <Button variant="outline" className="mt-4" onClick={handleClearCart}>
             Очистить корзину
           </Button>
         </div>
@@ -189,7 +166,7 @@ export default function CartPage() {
                 </div>
               </div>
 
-               <WhatsAppButton
+              <WhatsAppButton
                 message={generateWhatsAppMessage()}
                 className="mt-6 w-full"
                 disabled={cartItems.length === 0}

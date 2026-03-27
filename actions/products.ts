@@ -1,4 +1,4 @@
-'use server'
+"use server"
 
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/server"
@@ -44,7 +44,9 @@ export async function getProductById(id: number | string) {
 export async function addProduct(prevData: any, formData: FormData) {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) {
     return { error: "Unauthorized" }
@@ -84,15 +86,13 @@ export async function addProduct(prevData: any, formData: FormData) {
     .getPublicUrl(filePath)
 
   // 💾 insert
-  const { error: insertError } = await supabase
-    .from("products")
-    .insert({
-      name,
-      description,
-      price,
-      image: data.publicUrl,
-      available: true,
-    })
+  const { error: insertError } = await supabase.from("products").insert({
+    name,
+    description,
+    price,
+    image: data.publicUrl,
+    available: true,
+  })
 
   if (insertError) {
     console.log("INSERT ERROR:", insertError)
@@ -129,10 +129,7 @@ export async function deleteProduct(prevState: any, formData: FormData) {
   }
 
   // 3. Удаляем из БД
-  const { error } = await supabase
-    .from("products")
-    .delete()
-    .eq("id", id)
+  const { error } = await supabase.from("products").delete().eq("id", id)
 
   if (error) {
     return { error: error.message }
@@ -143,10 +140,15 @@ export async function deleteProduct(prevState: any, formData: FormData) {
 }
 
 // ОБНОВЛЕНИЕ НАЛИЧИЯ
-export async function toggleProductAvailability(prevData: any, formData: FormData) {
+export async function toggleProductAvailability(
+  prevData: any,
+  formData: FormData,
+) {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) return { error: "Unauthorized" }
 
   const id = Number(formData.get("id"))
@@ -167,7 +169,9 @@ export async function toggleProductAvailability(prevData: any, formData: FormDat
 export async function updateProduct(formData: FormData) {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) return { error: "Unauthorized" }
 
   const id = Number(formData.get("id"))

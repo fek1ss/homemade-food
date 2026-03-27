@@ -1,9 +1,20 @@
-// components/order-status-banner.tsx
+"use client"
 import { CheckCircle, XCircle } from "lucide-react"
-import { getAcceptOrders } from "@/actions/settings"
+import { useState, useEffect } from "react"
 
-export async function OrderStatusBanner() {
-  const isOpen = await getAcceptOrders()
+export function OrderStatusBanner({ initialValue }: { initialValue: boolean }) {
+  const [isOpen, setIsOpen] = useState(initialValue)
+
+  useEffect(() => {
+    const handleChange = (e: Event) => {
+      const customEvent = e as CustomEvent
+      setIsOpen(customEvent.detail)
+    }
+
+    window.addEventListener("accept-orders-change", handleChange)
+    return () =>
+      window.removeEventListener("accept-orders-change", handleChange)
+  }, [])
 
   return (
     <div

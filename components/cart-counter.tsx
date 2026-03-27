@@ -10,7 +10,6 @@ export function CartCounter() {
   useEffect(() => {
     // начальное значение
     setCount(getCart().reduce((sum, i) => sum + i.quantity, 0))
-    console.log("CartCounter mounted, initial count:", count)
     // слушаем обновления корзины
     const handler = (e: CustomEvent) => {
       setCount(e.detail.reduce((sum: any, i: any) => sum + i.quantity, 0))

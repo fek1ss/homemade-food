@@ -1,11 +1,15 @@
-'use server'
+"use server"
+
+"use server"
 
 import { createClient } from "@/lib/server"
 
 export async function getUserRole() {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   let role: string | null = null
 
@@ -26,6 +30,6 @@ export async function getUserRole() {
   return {
     role,
     isAdmin: role === "admin",
-    isCashier: role === "cashier"
+    isCashier: role === "cashier",
   }
 }
