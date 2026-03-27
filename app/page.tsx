@@ -3,16 +3,19 @@
 import { ProductCard } from "@/components/product-card"
 import { OrderStatusBanner } from "@/components/order-status-banner"
 import { getProducts } from "@/actions/products"
+import { getAcceptOrders } from "@/actions/settings"
 
 export default async function HomePage() {
-  // Загружаем продукты через actions
-  const products = await getProducts()
+  const [products, acceptOrders] = await Promise.all([
+    getProducts(),
+    getAcceptOrders(),
+  ])
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Order Status Banner */}
       <div className="mb-8">
-        <OrderStatusBanner />
+        <OrderStatusBanner initialValue={acceptOrders} />
       </div>
 
       {/* Hero Section */}

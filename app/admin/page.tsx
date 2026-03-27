@@ -14,10 +14,14 @@ import { getUserRole } from "@/actions/getUserRole"
 import { getAcceptOrders } from "@/actions/settings"
 
 export default async function AdminPage() {
-  const products = await getProducts()
-  const acceptOrders = await getAcceptOrders()
-  const slots = await getSlots()
-  const { isAdmin, isCashier } = await getUserRole()
+  const [products, acceptOrders, slots, role] = await Promise.all([
+    getProducts(),
+    getAcceptOrders(),
+    getSlots(),
+    getUserRole(),
+  ])
+
+  const { isAdmin, isCashier } = role || {}
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -36,7 +40,7 @@ export default async function AdminPage() {
       </div>
 
       {/* Статистика */}
-      <ProductStats products={products} />
+      <ProductStats products={products || []} />
 
       {/* Приём заказов */}
       <Card className="mb-8">
@@ -55,7 +59,7 @@ export default async function AdminPage() {
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <AdminDeliverySlots initialSlots={slots} />
+          <AdminDeliverySlots initialSlots={slots || []} />
         </CardContent>
       </Card>
 
@@ -69,7 +73,7 @@ export default async function AdminPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {products.map((product) => (
+            {products?.map((product) => (
               <AdminProductCard key={product.id} product={product} />
             ))}
           </div>

@@ -1,9 +1,9 @@
-// components/order-status-banner.tsx
+'use client'
 import { CheckCircle, XCircle } from "lucide-react"
-import { getAcceptOrders } from "@/actions/settings"
+import { useState } from "react"
 
-export async function OrderStatusBanner() {
-  const isOpen = await getAcceptOrders()
+export function OrderStatusBanner({ initialValue }: { initialValue: boolean }) {
+  const [isOpen, setIsOpen] = useState(initialValue)
 
   return (
     <div
