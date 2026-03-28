@@ -1,51 +1,48 @@
 "use client"
 
-import { useState } from "react"
 import { Switch } from "@/components/ui/switch"
 import { AddSlotForm } from "./slot-form/addSlotForm"
 import { toggleSlot } from "@/actions/slots"
+import { useEffect } from "react"
+import { useAppStore } from "@/store/useAppStore"
+import { Slot } from "@/types"
 
-interface Slot {
-  id: number
-  time_range: string
-  available: boolean
+interface Props {
+  initialSlots: Slot[]
 }
 
-export function AdminDeliverySlots({ initialSlots }: { initialSlots: Slot[] }) {
-  const [slots, setSlots] = useState<Slot[]>(initialSlots)
-  const [loadingId, setLoadingId] = useState<number | null>(null)
+export function AdminDeliverySlotsCC({ initialSlots }: Props) {
+  const { slots, setSlots, loadingSlotId, setLoadingSlotId } = useAppStore()
+
+  // Инициализация глобального состояния
+  useEffect(() => {
+    if (!slots && initialSlots) setSlots(initialSlots)
+  }, [initialSlots])
+
+  if (!slots) return null
 
   const handleToggle = async (id: number, available: boolean) => {
-    if (loadingId === id) return
-    setLoadingId(id)
+    if (loadingSlotId === id) return
+    setLoadingSlotId(id)
 
     try {
       await toggleSlot(id, available)
-      setSlots((prev) =>
-        prev.map((slot) =>
-          slot.id === id ? { ...slot, available: !available } : slot,
-        ),
-      )
+      setSlots(slots.map(s => (s.id === id ? { ...s, available: !available } : s)))
     } finally {
-      setLoadingId(null)
+      setLoadingSlotId(null)
     }
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <AddSlotForm
-        onAdded={
-          (newSlot) => setSlots((prev) => [...prev, newSlot]) // 🔥 добавляем новый слот сразу в UI
-        }
-      />
-
+      <AddSlotForm onAdded={(newSlot) => setSlots([...slots, newSlot])} />
       <div className="flex flex-col gap-2">
         {slots.map((slot) => (
           <div key={slot.id} className="flex items-center gap-2">
             <Switch
               checked={slot.available}
               onCheckedChange={() => handleToggle(slot.id, slot.available)}
-              disabled={loadingId === slot.id}
+              disabled={loadingSlotId === slot.id}
             />
             <span>{slot.time_range}</span>
           </div>

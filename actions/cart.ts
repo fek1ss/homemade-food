@@ -41,3 +41,28 @@ export const clearCart = () => {
   // 🔥 уведомляем
   window.dispatchEvent(new CustomEvent("cart-update", { detail: [] }))
 }
+
+// Увеличивает или уменьшает количество товара в корзине
+export function updateCartQuantity(productId: number, delta: number) {
+  const cart = getCart()
+
+  const updatedCart = cart
+    .map((item) => {
+      if (item.id === productId) {
+        const newQuantity = item.quantity + delta
+
+        // если количество <= 0 — удаляем товар
+        if (newQuantity <= 0) return null
+
+        return {
+          ...item,
+          quantity: newQuantity,
+        }
+      }
+      return item
+    })
+    .filter(Boolean) // убираем null
+
+  localStorage.setItem("cart", JSON.stringify(updatedCart))
+}
+

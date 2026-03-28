@@ -2,14 +2,17 @@ import { ProductCard } from "@/components/product-card"
 import { OrderStatusBanner } from "@/components/order-status-banner"
 import { getProducts } from "@/actions/products"
 import { getAcceptOrders } from "@/actions/settings"
+import { ProductGrid } from "@/components/product-grid"
+import { getSlots } from "@/actions/slots"
 
 // Кешировать главную страницу на 5 минут
 export const revalidate = 300
 
 export default async function HomePage() {
   // Загружаем продукты и статус заказов параллельно
-  const [products, acceptOrders] = await Promise.all([
+  const [products, slots, acceptOrders] = await Promise.all([
     getProducts(),
+    getSlots(),
     getAcceptOrders(),
   ])
 
@@ -44,11 +47,11 @@ export default async function HomePage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <ProductGrid
+            initialProducts={products}
+            initialSlots={slots}
+            initialAcceptOrders={acceptOrders}
+          />
         )}
       </section>
     </div>

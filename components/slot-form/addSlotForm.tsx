@@ -38,7 +38,7 @@ export function AddSlotForm({ onAdded }: { onAdded: (newSlot: Slot) => void }) {
         <Input
           value={timeRange}
           onChange={e => setTimeRange(e.target.value)}
-          placeholder="10:00 - 12:00"
+          placeholder="10:00"
         />
         <Button onClick={handleAdd}>Добавить слот</Button>
       </div>

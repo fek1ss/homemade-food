@@ -1,43 +1,51 @@
 "use client"
 
-import { useState } from "react"
 import { Switch } from "@/components/ui/switch"
+import { useAppStore } from "@/store/useAppStore"
 import { toggleAcceptOrders } from "@/actions/settings"
+import { useEffect } from "react"
 
-export function AcceptOrdersToggle({
-  initialValue,
-}: {
+interface Props {
   initialValue: boolean
-}) {
-  const [acceptOrders, setAcceptOrders] = useState(initialValue)
-  const [isLoading, setIsLoading] = useState(false)
+}
+
+export function AcceptOrdersToggleCC({ initialValue }: Props) {
+  const { acceptOrders, setAcceptOrders, loading, setLoading } = useAppStore()
+
+  // 🔥 инициализация Zustand из сервера
+  useEffect(() => {
+    if (acceptOrders === null && initialValue !== undefined) {
+      setAcceptOrders(initialValue)
+    }
+  }, [initialValue, acceptOrders, setAcceptOrders])
 
   const handleToggle = async () => {
-    if (isLoading) return
-    setIsLoading(true)
+    if (loading) return
+    setLoading(true)
 
     try {
-      const newValue = await toggleAcceptOrders()
+      const newValue = await toggleAcceptOrders() // ✅ ВОТ ТАК ПРАВИЛЬНО
       if (newValue !== null) {
         setAcceptOrders(newValue)
-        window.dispatchEvent(
-          new CustomEvent("accept-orders-change", { detail: newValue }),
-        )
       }
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
+
+  if (acceptOrders === null) return null
 
   return (
     <div className="flex items-center gap-2">
       <Switch
         checked={acceptOrders}
         onCheckedChange={handleToggle}
-        disabled={isLoading}
+        disabled={loading}
       />
       <span>
-        {acceptOrders ? "Прием заказов включен" : "Прием заказов выключен"}
+        {acceptOrders
+          ? "Прием заказов включен"
+          : "Прием заказов выключен"}
       </span>
     </div>
   )

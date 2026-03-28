@@ -1,24 +1,30 @@
+// app/admin/page.tsx
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Clock } from "lucide-react"
 import { AddProductForm } from "@/components/product-form/addProductForm"
 import { AdminProductCard } from "@/components/admin-product-card"
 import { LogoutButton } from "@/components/logout-button"
-import { AdminDeliverySlots } from "@/components/admin-delivery-slots"
-import { AcceptOrdersToggle } from "@/components/toggle-order"
+import { AcceptOrdersToggleCC } from "@/components/toggle-order"
+import { AdminDeliverySlotsCC } from "@/components/admin-delivery-slots"
 import { ProductStats } from "@/components/product-stats"
 import { getSlots } from "@/actions/slots"
 import { getProducts } from "@/actions/products"
 import { getUserRole } from "@/actions/getUserRole"
 import { getAcceptOrders } from "@/actions/settings"
 
-// Кешировать админ-панель на 1 минуту (она обновляется часто)
+// SC: кешируем на 1 минуту
 export const revalidate = 60
 
 export default async function AdminPage() {
-  const products = await getProducts()
-  const acceptOrders = await getAcceptOrders()
-  const slots = await getSlots()
-  const { isAdmin, isCashier } = await getUserRole()
+  // Server Component: сразу получаем данные с сервера
+  const [products, slots, acceptOrders, userRole] = await Promise.all([
+    getProducts(),
+    getSlots(),
+    getAcceptOrders(),
+    getUserRole(),
+  ])
+
+  const { isAdmin, isCashier } = userRole
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -32,7 +38,6 @@ export default async function AdminPage() {
             Управление продуктами и системой
           </p>
         </div>
-
         <LogoutButton />
       </div>
 
@@ -45,7 +50,8 @@ export default async function AdminPage() {
           <CardTitle>Приём заказов</CardTitle>
         </CardHeader>
         <CardContent>
-          <AcceptOrdersToggle initialValue={acceptOrders} />
+          {/* CC: интерактивный тоггл + Zustand */}
+          <AcceptOrdersToggleCC initialValue={acceptOrders} />
         </CardContent>
       </Card>
 
@@ -56,7 +62,8 @@ export default async function AdminPage() {
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <AdminDeliverySlots initialSlots={slots || []} />
+          {/* CC: интерактивное редактирование слотов */}
+          <AdminDeliverySlotsCC initialSlots={slots} />
         </CardContent>
       </Card>
 
