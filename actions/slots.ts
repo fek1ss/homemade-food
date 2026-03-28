@@ -1,6 +1,7 @@
-'use server'
+"use server"
 
 import { createClient } from "@/lib/server"
+import { revalidatePath } from "next/cache"
 
 export async function getSlots() {
   const supabase = await createClient()
@@ -15,7 +16,7 @@ export async function getSlots() {
     return []
   }
 
-  return data || [] 
+  return data || []
 }
 
 // export async function addSlot(time_range: string) {
@@ -54,5 +55,6 @@ export async function toggleSlot(id: number, available: boolean) {
 
   if (error) return { error: error.message }
 
+  revalidatePath("/admin")
   return { success: true }
 }

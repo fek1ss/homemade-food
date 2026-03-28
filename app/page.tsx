@@ -1,11 +1,13 @@
-'use server'
-
 import { ProductCard } from "@/components/product-card"
 import { OrderStatusBanner } from "@/components/order-status-banner"
 import { getProducts } from "@/actions/products"
 import { getAcceptOrders } from "@/actions/settings"
 
+// Кешировать главную страницу на 5 минут
+export const revalidate = 300
+
 export default async function HomePage() {
+  // Загружаем продукты и статус заказов параллельно
   const [products, acceptOrders] = await Promise.all([
     getProducts(),
     getAcceptOrders(),
@@ -24,7 +26,8 @@ export default async function HomePage() {
           Домашняя еда с любовью
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-pretty text-lg text-muted-foreground">
-          Приготовлено по семейным рецептам из свежих продуктов. Заказывайте через WhatsApp и получайте вкусную еду прямо к вашему столу.
+          Приготовлено по семейным рецептам из свежих продуктов. Заказывайте
+          через WhatsApp и получайте вкусную еду прямо к вашему столу.
         </p>
       </section>
 
@@ -34,17 +37,16 @@ export default async function HomePage() {
           Наше меню
         </h2>
 
-        {(!products || products.length === 0) ? (
+        {!products || products.length === 0 ? (
           <div className="rounded-lg border border-border bg-muted/50 p-8 text-center">
-            <p className="text-muted-foreground">Приносим извинения, меню временно недоступно</p>
+            <p className="text-muted-foreground">
+              Приносим извинения, меню временно недоступно
+            </p>
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-              />
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}

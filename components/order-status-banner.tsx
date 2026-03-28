@@ -1,9 +1,20 @@
-'use client'
+"use client"
 import { CheckCircle, XCircle } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export function OrderStatusBanner({ initialValue }: { initialValue: boolean }) {
   const [isOpen, setIsOpen] = useState(initialValue)
+
+  useEffect(() => {
+    const handleChange = (e: Event) => {
+      const customEvent = e as CustomEvent
+      setIsOpen(customEvent.detail)
+    }
+
+    window.addEventListener("accept-orders-change", handleChange)
+    return () =>
+      window.removeEventListener("accept-orders-change", handleChange)
+  }, [])
 
   return (
     <div

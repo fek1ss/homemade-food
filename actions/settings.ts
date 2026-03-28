@@ -1,5 +1,5 @@
 // actions/setting.ts
-'use server'
+"use server"
 
 import { createClient } from "@/lib/server"
 
@@ -37,9 +37,7 @@ export async function toggleAcceptOrders() {
 
   const newValue = !data?.accept_orders
 
-  await supabase
-    .from("settings")
-    .upsert({ id: 1, accept_orders: newValue })
+  await supabase.from("settings").upsert({ id: 1, accept_orders: newValue })
 
   return newValue
 }

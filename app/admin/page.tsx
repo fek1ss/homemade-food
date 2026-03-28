@@ -1,5 +1,3 @@
-'use server'
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Clock } from "lucide-react"
 import { AddProductForm } from "@/components/product-form/addProductForm"
@@ -13,15 +11,14 @@ import { getProducts } from "@/actions/products"
 import { getUserRole } from "@/actions/getUserRole"
 import { getAcceptOrders } from "@/actions/settings"
 
-export default async function AdminPage() {
-  const [products, acceptOrders, slots, role] = await Promise.all([
-    getProducts(),
-    getAcceptOrders(),
-    getSlots(),
-    getUserRole(),
-  ])
+// Кешировать админ-панель на 1 минуту (она обновляется часто)
+export const revalidate = 60
 
-  const { isAdmin, isCashier } = role || {}
+export default async function AdminPage() {
+  const products = await getProducts()
+  const acceptOrders = await getAcceptOrders()
+  const slots = await getSlots()
+  const { isAdmin, isCashier } = await getUserRole()
 
   return (
     <div className="container mx-auto px-4 py-8">

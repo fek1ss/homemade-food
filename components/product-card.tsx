@@ -3,7 +3,6 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Plus } from "lucide-react"
-import { useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { addToCart } from "@/actions/cart"
@@ -15,8 +14,6 @@ type ProductCardProps = {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const imgRef = useRef<HTMLImageElement | null>(null)
-
   const handleAddToCart = () => {
     if (!product.available) return
 
@@ -27,37 +24,6 @@ export function ProductCard({ product }: ProductCardProps) {
       image: product.image,
       quantity: 1,
     })
-
-    // 🔥 АНИМАЦИЯ
-    const img = imgRef.current
-    const cartIcon = document.getElementById("cart-icon")
-
-    if (!img || !cartIcon) return
-
-    const imgRect = img.getBoundingClientRect()
-    const cartRect = cartIcon.getBoundingClientRect()
-
-    const clone = img.cloneNode(true) as HTMLElement
-    clone.style.position = "fixed"
-    clone.style.left = `${imgRect.left}px`
-    clone.style.top = `${imgRect.top}px`
-    clone.style.width = `${imgRect.width}px`
-    clone.style.height = `${imgRect.height}px`
-    clone.style.transition = "all 0.7s ease-in-out"
-    clone.style.zIndex = "9999"
-    clone.style.pointerEvents = "none"
-
-    document.body.appendChild(clone)
-
-    requestAnimationFrame(() => {
-      clone.style.left = `${cartRect.left}px`
-      clone.style.top = `${cartRect.top}px`
-      clone.style.width = "24px"
-      clone.style.height = "24px"
-      clone.style.opacity = "0.5"
-    })
-
-    setTimeout(() => clone.remove(), 700)
   }
 
   return (
@@ -68,6 +34,7 @@ export function ProductCard({ product }: ProductCardProps) {
           alt={product.name}
           fill
           className="object-cover"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
         {!product.available && (
           <div className="absolute inset-0 bg-foreground/40" />
