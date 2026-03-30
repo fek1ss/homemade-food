@@ -30,14 +30,22 @@ export async function toggleAcceptOrders() {
     .eq("id", 1)
     .single()
 
-  if (error) {
+  if (error && error.code !== 'PGRST116') { // если ошибка не "not found"
     console.error("Ошибка при получении текущего значения:", error)
     return null
   }
 
-  const newValue = !data?.accept_orders
+  const currentValue = data?.accept_orders ?? false // дефолт false
+  const newValue = !currentValue
 
-  await supabase.from("settings").upsert({ id: 1, accept_orders: newValue })
+  const { error: upsertError } = await supabase
+    .from("settings")
+    .upsert({ id: 1, accept_orders: newValue })
+
+  if (upsertError) {
+    console.error("Ошибка при обновлении accept_orders:", upsertError)
+    return currentValue
+  }
 
   return newValue
 }

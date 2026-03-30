@@ -42,7 +42,7 @@ export default async function ProductPage({
 
       <div className="grid gap-6 sm:gap-8 lg:grid-cols-2">
         {/* Image */}
-        <div className="relative overflow-hidden rounded-xl">
+        <div className="relative overflow-hidden rounded-xl h-64 sm:h-80 lg:h-full">
           <Image
             src={product.image}
             alt={product.name}

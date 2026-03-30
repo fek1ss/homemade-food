@@ -12,7 +12,6 @@ interface Props {
 export function AcceptOrdersToggleCC({ initialValue }: Props) {
   const { acceptOrders, setAcceptOrders, loading, setLoading } = useAppStore()
 
-  // 🔥 инициализация Zustand из сервера
   useEffect(() => {
     if (acceptOrders === null && initialValue !== undefined) {
       setAcceptOrders(initialValue)
@@ -24,7 +23,7 @@ export function AcceptOrdersToggleCC({ initialValue }: Props) {
     setLoading(true)
 
     try {
-      const newValue = await toggleAcceptOrders() // ✅ ВОТ ТАК ПРАВИЛЬНО
+      const newValue = await toggleAcceptOrders() 
       if (newValue !== null) {
         setAcceptOrders(newValue)
       }
