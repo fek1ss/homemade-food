@@ -8,6 +8,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { addToCart } from "@/actions/cart"
 import { Product } from "./../types/index"
 import { Info } from "lucide-react"
+import { AddToCartButton } from "./add-to-cart-button"
 
 type ProductCardProps = {
   product: Product
@@ -53,9 +54,7 @@ export function ProductCard({ product }: ProductCardProps) {
       </CardContent>
 
       <CardFooter className="p-4 flex gap-2">
-        <Button onClick={handleAddToCart}>
-          <Plus className="h-4 w-4" />
-        </Button>
+        <AddToCartButton product={product} />
 
         <Link href={`/product/${product.id}`} className="flex-1">
           <Button variant="outline" className="w-full">

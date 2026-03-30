@@ -1,4 +1,3 @@
-import { ProductCard } from "@/components/product-card"
 import { OrderStatusBanner } from "@/components/order-status-banner"
 import { getProducts } from "@/actions/products"
 import { getAcceptOrders } from "@/actions/settings"

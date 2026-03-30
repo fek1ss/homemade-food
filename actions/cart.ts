@@ -1,10 +1,5 @@
-export interface CartItem {
-  id: number
-  name: string
-  price: number
-  image: string
-  quantity: number
-}
+import { CartItem } from "@/types"
+
 
 const CART_KEY = "cart"
 

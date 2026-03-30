@@ -1,35 +1,68 @@
 "use client"
 
-import { MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Slot, Product, CartItem } from "@/types"
 
-interface WhatsAppButtonProps {
-  message: string
+interface Props {
+  product?: Product
+  cartItems?: CartItem[]
+  selectedSlot?: Slot | null
   className?: string
-  children?: React.ReactNode
   disabled?: boolean
 }
 
-// TODO: Configure WhatsApp phone number
-// This should be stored in environment variables or Supabase settings
-const WHATSAPP_PHONE = "79001234567" // Replace with actual phone number
+export function WhatsAppButton({
+  product,
+  cartItems,
+  selectedSlot,
+  className,
+  disabled,
+}: Props) {
+  const generateMessage = () => {
+    // 🛒 Корзина
+    if (cartItems && cartItems.length > 0) {
+      const itemsList = cartItems
+        .map((item) => `- ${item.name} (${item.quantity} шт)`)
+        .join("\n")
 
-export function WhatsAppButton({ message, className, children, disabled }: WhatsAppButtonProps) {
+      const total = cartItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      )
+
+      return `Здравствуйте! Хочу заказать:
+${itemsList}
+Итого: ${total} ₸
+${selectedSlot ? `Слот: ${selectedSlot.time_range}` : ""}
+Адрес:`
+    }
+
+    // 🍔 Один продукт
+    if (product) {
+      return `Здравствуйте! Хочу заказать:
+- ${product.name}
+Итого: ${product.price} ₸
+${selectedSlot ? `Слот: ${selectedSlot.time_range}` : ""}
+Адрес:`
+    }
+
+    return ""
+  }
+
   const handleClick = () => {
-    if (disabled) return
-    const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodedMessage}`
-    window.open(whatsappUrl, "_blank")
+    const message = encodeURIComponent(generateMessage())
+    const phone = "+77774433047"
+
+    window.open(`https://wa.me/${phone}?text=${message}`, "_blank")
   }
 
   return (
     <Button
       onClick={handleClick}
       disabled={disabled}
-      className={`bg-[#25D366] text-white hover:bg-[#128C7E] disabled:opacity-50 ${className}`}
+      className={className}
     >
-      <MessageCircle className="mr-2 h-5 w-5" />
-      {children || "Заказать через WhatsApp"}
+      Заказать через WhatsApp
     </Button>
   )
 }

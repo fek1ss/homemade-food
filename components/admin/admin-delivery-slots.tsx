@@ -1,7 +1,7 @@
 "use client"
 
 import { Switch } from "@/components/ui/switch"
-import { AddSlotForm } from "./slot-form/addSlotForm"
+import { AddSlotForm } from "./addSlotForm"
 import { toggleSlot } from "@/actions/slots"
 import { useEffect } from "react"
 import { useAppStore } from "@/store/useAppStore"
