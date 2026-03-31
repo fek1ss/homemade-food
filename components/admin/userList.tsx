@@ -63,10 +63,13 @@ export function UserList({
         const isSaving = savingIds.has(user.id)
 
         return (
-          <div key={user.id} className="border p-4 rounded-lg flex flex-col gap-2">
+          <div
+            key={user.id}
+            className="border p-4 rounded-xl flex flex-col gap-3 bg-card"
+          >
             {editingId === user.id ? (
               <form
-                className="flex flex-col gap-2"
+                className="flex flex-col gap-3"
                 onSubmit={async (e) => {
                   e.preventDefault()
                   const formData = new FormData(e.currentTarget)
@@ -75,13 +78,23 @@ export function UserList({
               >
                 <input type="hidden" name="id" value={user.id} />
 
-                <Input name="email" defaultValue={user.email} />
-                <Input name="password" placeholder="Новый пароль (необязательно)" />
+                <Input
+                  name="email"
+                  defaultValue={user.email}
+                  placeholder="Email"
+                />
 
-                <div className="flex gap-2">
+                <Input
+                  name="password"
+                  placeholder="Новый пароль (необязательно)"
+                />
+
+                {/* 📱 кнопки */}
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button type="submit" disabled={isSaving}>
                     {isSaving ? "Сохраняем..." : "Сохранить"}
                   </Button>
+
                   <Button
                     type="button"
                     variant="outline"
@@ -92,16 +105,23 @@ export function UserList({
                 </div>
               </form>
             ) : (
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                {/* 👤 инфа */}
                 <div>
-                  <p className="font-semibold">{user.email}</p>
-                  <p className="text-sm text-muted-foreground">{user.role}</p>
+                  <p className="font-semibold break-all">
+                    {user.email}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {user.role}
+                  </p>
                 </div>
 
-                <div className="flex gap-2">
+                {/* 🔘 кнопки */}
+                <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
                   <Button
                     variant="outline"
                     onClick={() => setEditingId(user.id)}
+                    className="w-full sm:w-auto"
                   >
                     Редактировать
                   </Button>
@@ -111,6 +131,7 @@ export function UserList({
                       variant="destructive"
                       onClick={() => handleDelete(user.id)}
                       disabled={isDeleting}
+                      className="w-full sm:w-auto"
                     >
                       {isDeleting ? "Удаление..." : "Удалить"}
                     </Button>

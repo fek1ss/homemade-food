@@ -65,7 +65,8 @@ export async function addProduct(prevData: any, formData: FormData) {
     return { error: "Изображение обязательно" }
   }
 
-  const fileName = `${Date.now()}-${file.name.replace(/\s/g, "_")}`
+  const fileExt = file.name.split(".").pop()
+  const fileName = `${Date.now()}.${fileExt}`
   const filePath = `products/${fileName}`
 
   // 🚀 upload

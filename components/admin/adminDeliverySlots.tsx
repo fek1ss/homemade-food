@@ -39,21 +39,30 @@ export function AdminDeliverySlotsCC({ initialSlots }: Props) {
     }
   }
 
-  const handleDelete = async (id: number) => {
-    if (deletingIds.has(id)) return // защита от двойного клика
-    setDeletingIds(new Set(deletingIds).add(id))
+const handleDelete = async (id: number) => {
+  if (deletingIds.has(id)) return 
 
-    try {
-      await deleteSlot(id)
-      setSlots(slots.filter(s => s.id !== id))
-    } finally {
-      setDeletingIds(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(id)
-        return newSet
-      })
+  setDeletingIds(prev => new Set(prev).add(id))
+
+  try {
+    const res = await deleteSlot(id)
+
+    if (res?.error) {
+      console.error(res.error)
+      return
     }
+
+    // ✅ только если успех
+    setSlots(slots.filter(s => s.id !== id))
+
+  } finally {
+    setDeletingIds(prev => {
+      const newSet = new Set(prev)
+      newSet.delete(id)
+      return newSet
+    })
   }
+}
 
   return (
     <div className="flex flex-col gap-4">

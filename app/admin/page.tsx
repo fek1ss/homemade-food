@@ -14,6 +14,7 @@ import { getAcceptOrders } from "@/actions/settings"
 import { getCurrentUser, getUsers } from "@/actions/user"
 import { AddUserForm } from "@/components/admin/addUserForm"
 import { UserList } from "@/components/admin/userList"
+import { BackLink } from "@/components/back-link"
 
 
 // SC: кешируем на 1 минуту
@@ -30,13 +31,14 @@ export default async function AdminPage() {
     getCurrentUser(),
   ])
 
-  const { isAdmin, isCashier } = userRole
+  const { isAdmin } = userRole
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Заголовок */}
       <div className="flex flex-col mb-6">
         <div className="mb-4">
+          <BackLink text="Вернуться на сайт" />
           <h1 className="text-3xl font-bold text-foreground">
             Панель администратора
           </h1>

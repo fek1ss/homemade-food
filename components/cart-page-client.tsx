@@ -15,6 +15,7 @@ import {
 } from "@/actions/cart"
 import { WhatsAppButton } from "@/components/whatsapp-button"
 import { Slot } from "@/types"
+import { BackLink } from "./back-link"
 
 interface Props {
   initialSlots: Slot[]
@@ -83,10 +84,7 @@ export function CartPageClient({
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Link href="/" className="mb-6 flex items-center gap-2 text-muted-foreground">
-        <ArrowLeft className="h-4 w-4" />
-        Продолжить покупки
-      </Link>
+      <BackLink text="Продолжить покупки" />
 
       <h1 className="mb-8 text-3xl font-bold">Ваша корзина</h1>
 
