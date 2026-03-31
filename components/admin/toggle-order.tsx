@@ -19,18 +19,30 @@ export function AcceptOrdersToggleCC({ initialValue }: Props) {
   }, [initialValue, acceptOrders, setAcceptOrders])
 
   const handleToggle = async () => {
-    if (loading) return
-    setLoading(true)
+  if (loading) return
 
-    try {
-      const newValue = await toggleAcceptOrders() 
-      if (newValue !== null) {
-        setAcceptOrders(newValue)
-      }
-    } finally {
-      setLoading(false)
+  setLoading(true)
+
+  const prev = acceptOrders
+  const optimisticValue = !acceptOrders
+
+  // 🚀 мгновенно меняем UI
+  setAcceptOrders(optimisticValue)
+
+  try {
+    const newValue = await toggleAcceptOrders()
+
+    // 🔥 синхронизируем с сервером (на всякий)
+    if (newValue !== null) {
+      setAcceptOrders(newValue)
     }
+  } catch (e) {
+    // ❗ откат если ошибка
+    setAcceptOrders(prev)
+  } finally {
+    setLoading(false)
   }
+}
 
   if (acceptOrders === null) return null
 
