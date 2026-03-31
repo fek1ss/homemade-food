@@ -41,7 +41,7 @@ export function AdminProductCard({ product }: AdminProductCardProps) {
         <h3 className="line-clamp-1 text-lg font-semibold text-foreground">
           {product.name}
         </h3>
-        <p className="mt-1 text-xl font-bold text-primary">{product.price} ₽</p>
+        <p className="mt-1 text-xl font-bold text-primary">{product.price} ₸</p>
       </CardContent>
 
       <CardFooter className="flex gap-2 p-4 pt-0">

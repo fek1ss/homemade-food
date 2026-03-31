@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/server"
+import { createAdminClient } from "@/lib/admin"
 
-// Получение всех продуктов
+// 🔹 Получение всех продуктов
 export async function getProducts() {
   const supabase = await createClient()
 
@@ -12,17 +13,15 @@ export async function getProducts() {
     .select("*")
     .order("created_at", { ascending: false })
 
-  if (error) {
-    throw new Error(error.message)
-  }
+  if (error) throw new Error(error.message)
 
   return data || []
 }
 
-// Получение продукта по ID
+// 🔹 Получение продукта по ID
 export async function getProductById(id: number | string) {
   const supabase = await createClient()
-  const numericId = Number(id) // 🔹
+  const numericId = Number(id)
 
   if (isNaN(numericId)) return null
 
@@ -33,14 +32,14 @@ export async function getProductById(id: number | string) {
     .single()
 
   if (error) {
-    console.log("Ошибка при загрузке продукта:", JSON.stringify(error))
+    console.log("Ошибка загрузки продукта:", error.message)
     return null
   }
 
   return data
 }
 
-// Добавление нового продукта
+// 🔹 Добавление продукта
 export async function addProduct(prevData: any, formData: FormData) {
   const supabase = await createClient()
 
@@ -48,28 +47,22 @@ export async function addProduct(prevData: any, formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    return { error: "Unauthorized" }
-  }
+  if (!user) return { error: "Unauthorized" }
 
   const name = formData.get("name") as string
   const description = formData.get("description") as string
   const price = Number(formData.get("price"))
   const file = formData.get("image") as File
 
-  if (!name.trim()) {
-    return { error: "Название не может быть пустым" }
-  }
+  if (!name.trim()) return { error: "Название не может быть пустым" }
+  if (!file || file.size === 0) return { error: "Изображение обязательно" }
 
-  if (!file || file.size === 0) {
-    return { error: "Изображение обязательно" }
-  }
-
+  // 🔥 фикс кириллицы + пробелов
   const fileExt = file.name.split(".").pop()
-  const fileName = `${Date.now()}.${fileExt}`
-  const filePath = `products/${fileName}`
+  const safeName = Date.now() + "." + fileExt
+  const filePath = `products/${safeName}`
 
-  // 🚀 upload
+  // 🔹 upload
   const { error: uploadError } = await supabase.storage
     .from("product-images")
     .upload(filePath, file, {
@@ -81,12 +74,12 @@ export async function addProduct(prevData: any, formData: FormData) {
     return { error: uploadError.message }
   }
 
-  // 🔗 url
+  // 🔹 получаем URL
   const { data } = supabase.storage
     .from("product-images")
     .getPublicUrl(filePath)
 
-  // 💾 insert
+  // 🔹 сохраняем в БД
   const { error: insertError } = await supabase.from("products").insert({
     name,
     description,
@@ -101,46 +94,69 @@ export async function addProduct(prevData: any, formData: FormData) {
   }
 
   revalidatePath("/")
+  revalidatePath("/admin")
+
   return { success: true }
 }
 
-// УДАЛЕНИЕ ПРОДУКТА
+// 🔹 Удаление продукта
 export async function deleteProduct(prevState: any, formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const id = Number(formData.get("id"))
+  if (!id) return { error: "Invalid ID" }
 
   // 1. Получаем продукт
-  const { data: product } = await supabase
+  const { data: product, error: fetchError } = await supabase
     .from("products")
     .select("image")
     .eq("id", id)
     .single()
 
-  // 2. Удаляем картинку из storage
-  if (product?.image) {
-    // ⚠️ ВАЖНО: тут должен быть ТОЛЬКО путь, не полный URL
-    const filePath = product.image.split("/storage/v1/object/public/")[1]
+  if (fetchError) return { error: fetchError.message }
 
-    if (filePath) {
-      await supabase.storage
-        .from("product-images") // имя bucket
-        .remove([filePath])
+  
+
+  // 2. Удаляем картинку
+  if (product?.image) {
+    try {
+      const parts = product.image.split("/product-images/")
+
+      if (parts[1]) {
+        const filePath = parts[1] // products/xxx.jpg
+
+        const { error: storageError } = await supabase.storage
+          .from("product-images")
+          .remove([filePath])
+        
+        console.log("DELETE STORAGE ERROR:", storageError)
+        console.log("IMAGE URL:", product.image)
+        console.log("FILE PATH:", filePath)
+          
+        if (storageError) {
+          console.error("Ошибка удаления файла:", storageError.message)
+        }
+      }
+    } catch (err) {
+      console.error("Ошибка обработки пути:", err)
     }
   }
 
   // 3. Удаляем из БД
-  const { error } = await supabase.from("products").delete().eq("id", id)
+  const { error: deleteError } = await supabase
+    .from("products")
+    .delete()
+    .eq("id", id)
 
-  if (error) {
-    return { error: error.message }
-  }
+  if (deleteError) return { error: deleteError.message }
 
   revalidatePath("/admin")
+  revalidatePath("/")
+
   return { success: true }
 }
 
-// ОБНОВЛЕНИЕ НАЛИЧИЯ
+// 🔹 Переключение доступности
 export async function toggleProductAvailability(
   prevData: any,
   formData: FormData,
@@ -150,6 +166,7 @@ export async function toggleProductAvailability(
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
   if (!user) return { error: "Unauthorized" }
 
   const id = Number(formData.get("id"))
@@ -163,22 +180,27 @@ export async function toggleProductAvailability(
   if (error) return { error: error.message }
 
   revalidatePath("/admin")
+  revalidatePath("/")
+
   return { success: true }
 }
 
-// ОБНОВЛЕНИЕ ПРОДУКТА
+// 🔹 Обновление продукта
 export async function updateProduct(formData: FormData) {
   const supabase = await createClient()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
   if (!user) return { error: "Unauthorized" }
 
   const id = Number(formData.get("id"))
   const name = formData.get("name") as string
   const description = formData.get("description") as string
   const price = Number(formData.get("price"))
+
+  if (!id) return { error: "Invalid ID" }
 
   const { error } = await supabase
     .from("products")
@@ -192,5 +214,6 @@ export async function updateProduct(formData: FormData) {
   if (error) return { error: error.message }
 
   revalidatePath("/admin")
+
   return { success: true }
 }
