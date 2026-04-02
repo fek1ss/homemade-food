@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useRef, useState } from "react"
+import { useActionState, useEffect, useRef, useState, useTransition } from "react"
 import imageCompression from "browser-image-compression"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -12,29 +12,44 @@ const initialState = { error: '' }
 
 export function AddProductForm() {
   const [state, formAction] = useActionState(addProduct, initialState)
+  const [isPending, startTransition] = useTransition()
+  const [isCompressing, setIsCompressing] = useState(false)
+  
+  // 1. Создаем реф для формы
   const formRef = useRef<HTMLFormElement>(null)
-  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (formData: FormData) => {
-    if (loading) return
-    setLoading(true)
-
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (isPending || isCompressing) return
+    
+    setIsCompressing(true)
+    const formData = new FormData(e.currentTarget)
+    
     try {
       const file = formData.get("image") as File
-
       if (file && file.size > 0) {
         const compressedFile = await imageCompression(file, {
-          maxSizeMB: 0.3,       // 🔥 до 300KB
+          maxSizeMB: 0.3,
           maxWidthOrHeight: 800,
           useWebWorker: true,
         })
-
-        formData.set("image", compressedFile)
+        formData.set("image", new File([compressedFile], file.name))
       }
 
-      await formAction(formData)
+      // 2. Вызываем экшен
+      startTransition(() => {
+        formAction(formData)
+      })
+
+      // 3. Очищаем форму вручную сразу после запуска
+      // Если хочешь очищать ТОЛЬКО при успехе, придется ждать ответа от сервера,
+      // но для мгновенной очистки это делается так:
+      formRef.current?.reset()
+
+    } catch (error) {
+      console.error(error)
     } finally {
-      setLoading(false)
+      setIsCompressing(false)
     }
   }
 
@@ -42,8 +57,11 @@ export function AddProductForm() {
     <div className="mb-8 rounded-lg border border-border bg-card p-6">
       <h3 className="text-xl font-semibold mb-4">Добавить блюдо</h3>
 
-      <form action={handleSubmit} className="space-y-4">
-
+      <form 
+        ref={formRef} // 4. Привязываем реф
+        onSubmit={handleSubmit} 
+        className="space-y-4"
+      >
         <div>
           <Label htmlFor="name">Название</Label>
           <Input id="name" name="name" required />
@@ -68,8 +86,8 @@ export function AddProductForm() {
           <p className="text-red-500 text-sm">{state.error}</p>
         )}
 
-        <Button type="submit" disabled={loading}>
-          {loading ? "Загрузка..." : "Добавить"}
+        <Button type="submit" disabled={isPending || isCompressing}>
+          {(isPending || isCompressing) ? "Загрузка..." : "Добавить"}
         </Button>
       </form>
     </div>

@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/server"
 import { createAdminClient } from "@/lib/admin"
-import sharp from "sharp"
 
 // 🔹 Получение всех продуктов
 export async function getProducts() {
