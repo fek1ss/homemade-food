@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/server"
 import { createAdminClient } from "@/lib/admin"
+import sharp from "sharp"
 
 // 🔹 Получение всех продуктов
 export async function getProducts() {
@@ -57,12 +58,12 @@ export async function addProduct(prevData: any, formData: FormData) {
   if (!name.trim()) return { error: "Название не может быть пустым" }
   if (!file || file.size === 0) return { error: "Изображение обязательно" }
 
-  // 🔥 фикс кириллицы + пробелов
+  // 🔥 фикс имени файла (убираем кириллицу и пробелы)
   const fileExt = file.name.split(".").pop()
-  const safeName = Date.now() + "." + fileExt
+  const safeName = `${Date.now()}.${fileExt}` // только timestamp
   const filePath = `products/${safeName}`
 
-  // 🔹 upload
+  // 🔹 upload оригинального файла (без сжатия)
   const { error: uploadError } = await supabase.storage
     .from("product-images")
     .upload(filePath, file, {
@@ -74,7 +75,7 @@ export async function addProduct(prevData: any, formData: FormData) {
     return { error: uploadError.message }
   }
 
-  // 🔹 получаем URL
+  // 🔹 получаем публичный URL
   const { data } = supabase.storage
     .from("product-images")
     .getPublicUrl(filePath)
@@ -93,11 +94,13 @@ export async function addProduct(prevData: any, formData: FormData) {
     return { error: insertError.message }
   }
 
+  // 🔄 обновляем страницы
   revalidatePath("/")
   revalidatePath("/admin")
 
   return { success: true }
 }
+
 
 // 🔹 Удаление продукта
 export async function deleteProduct(prevState: any, formData: FormData) {
